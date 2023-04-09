@@ -1,9 +1,5 @@
 const { UserModel } = require("../models/userModel");
-const { RestaurantModel } = require("../models/restaurantModel");
-const {
-  validWorkerFillDetails,
-  validUserEdit,
-} = require("../validation/userValidation");
+const { validUserEdit } = require("../validation/userValidation");
 const bcrypt = require("bcrypt");
 
 exports.userCtrl = {
@@ -51,49 +47,7 @@ exports.userCtrl = {
   },
 
   //לנסות להקטין את כמות הבקשות מהשרת
-  WorkerFillDetails: async (req, res) => {
-    console.log(req.body);
-    let validBody = validWorkerFillDetails(req.body);
 
-    if (validBody.error) {
-      return res.status(400).json(validBody.error.details);
-    }
-    try {
-      let workerId = req.params.workerId;
-      let workerUpdate = await UserModel.findOneAndUpdate(
-        {
-          $and: [{ _id: workerId }, { verified: false }],
-        },
-        {
-          $set: {
-            "worker.pin": req.body.worker.pin,
-            phone: req.body.phone,
-            password: await bcrypt.hash(req.body.password, 10),
-            fullName: req.body.fullName,
-            verified: true,
-          },
-        },
-        { new: true }
-      );
-
-      if (!workerUpdate) {
-        return res
-          .status(401)
-          .json({ msg: "User not found or has already been verified" });
-      }
-
-      // console.log(workerUpdate);
-      res.status(201).json(workerUpdate);
-    } catch (err) {
-      if (err.code == 11000) {
-        return res
-          .status(500)
-          .json({ msg: "Email already in system, try log in", code: 11000 });
-      }
-      console.log(err);
-      res.status(500).json({ msg: "err", err });
-    }
-  },
   userList: async (req, res) => {
     try {
       let data = await UserModel.find({}, { password: 0 });
@@ -103,26 +57,10 @@ exports.userCtrl = {
       res.status(500).json({ msg: "err", err });
     }
   },
-  editWorkerJob: async (req, res) => {
-    if (!req.body.jobs) {
-      return res.status(400).json({ msg: "Need to send job in body" });
-    }
-    try {
-      let editId = req.params.editId;
-      let userUpdate = await UserModel.updateOne(
-        { _id: editId },
-        { $set: { "worker.jobs": req.body.jobs } }
-      );
-      console.log(userUpdate);
-      res.json(userUpdate);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ msg: "err", err });
-    }
-  },
+
   editWorkerActive: async (req, res) => {
-    console.log(req.body.active)
-    if (req.body.active==null||req.body.active==undefined) {
+    console.log(req.body.active);
+    if (req.body.active == null || req.body.active == undefined) {
       return res.status(400).json({ msg: "Need to send active in body" });
     }
     try {
@@ -188,29 +126,6 @@ exports.userCtrl = {
     } catch (err) {
       console.log(err);
       res.status(500).json({ msg: "delete user fail", err });
-    }
-  },
-  deleteWorker: async (req, res) => {
-    try {
-      let { delId, restId } = req.params;
-      let userInfo;
-
-      console.log(delId);
-      console.log(req.tokenData.role);
-
-      req.tokenData.jobs.forEach(async (job) => {
-        if (job == "manager") {
-          userInfo = await UserModel.deleteOne({ _id: delId }, { password: 0 });
-          let rest = await RestaurantModel.updateOne(
-            { _id: restId },
-            { $pull: { workersArray: { $in: [itemId] } } }
-          );
-        }
-      });
-      res.json(userInfo);
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({ msg: "delete Worker fail", err });
     }
   },
 };

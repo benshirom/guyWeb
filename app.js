@@ -16,7 +16,7 @@ const app = express();
 
 // נותן גישה לכל הדומיינים לגשת לשרת שלנו
 app.use(cors({
-    origin : [ "http://localhost:3000",config.ReactUrl],
+    origin : [ "http://localhost:3000",config.webUrl],
     credentials: true,
 }));
 // כדי שנוכל לקבל באדי
@@ -31,7 +31,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin : [ "http://localhost:3000",config.ReactUrl,"http://localhost:3001"]
+        origin : [ "http://localhost:3000",config.webUrl,"http://localhost:3001"]
     }
 })
 

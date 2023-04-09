@@ -17,20 +17,5 @@ let userSchema = new mongoose.Schema({
   verified: { type: Boolean, default: false },
   active: { type: Boolean, default: true },
 
-  worker: {
-    pin: {type: String, default:""},
-    jobs: [{ type: String }],
-    restaurantID: [mongoose.ObjectId],
-
-  },
-
-    address: {
-      country:{type: String, default: ""} ,
-      city:{type: String, default: ""} ,
-      Street: {type: String, default: ""},
-      num: {type: Number, default:1}
-  },
-    
-
 },{timestamps:true});
 exports.UserModel = mongoose.model("users", userSchema);

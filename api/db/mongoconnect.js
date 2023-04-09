@@ -9,6 +9,7 @@ async function main() {
   
  // use the moongose global( from moongo atlas useing env ${config.userDb},${config.passDb} for securety)
 
-  await mongoose.connect(`mongodb+srv://${config.userDb}:${config.passDb}@cluster0.qkrbiqq.mongodb.net/restaurantApi`);
+  await mongoose.connect(`mongodb+srv://${config.userDb}:${config.passDb}@cluster0.5jicjhd.mongodb.net/guyWeb`);
   console.log("mongo connect ")
 }
+

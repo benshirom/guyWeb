@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const path = require("path");
 const { UserModel } = require("../models/userModel");
 const { VerificationModel } = require("../models/verificationModel");
-const { RestaurantModel } = require("../models/restaurantModel");
 
 const { config } = require("../config/secret");
 const { validSignUpUser, validLogin, validSignUpWorker, validSignUpManager } = require("../validation/userValidation");
@@ -30,62 +29,6 @@ exports.authCtrl = {
     }
     catch (err) {
       if (err.code == 11000) return res.status(500).json({ msg: "Email already in system, try log in", code: 11000 })
-      console.log(err);
-      res.status(500).json({ msg: "err", err })
-    }
-  },
-  signUpManager: async (req, res) => {
-    console.log(req.body)
-    req.body.worker.jobs = ["manager"];
-
-    let validBody = validSignUpManager(req.body);
-
-    if (validBody.error) {
-      return res.status(400).json(validBody.error.details);
-    }
-
-    try {
-      let user = new UserModel(req.body);
-
-      user.password = await bcrypt.hash(user.password, config.salRounds);
-      await user.save();
-      user.password = "***";
-      sendVerificationEmail("manager", user, res);
-
-      res.status(201).json(user);
-    }
-    catch (err) {
-      if (err.code == 11000) {
-        return res.status(500).json({ msg: "Email already in system, try log in", code: 11000 })
-
-      }
-      console.log(err);
-      res.status(500).json({ msg: "err", err })
-    }
-  },
-  signUpWorker: async (req, res) => {
-    let validBody = validSignUpWorker(req.body);
-    // במידה ויש טעות בריק באדי שהגיע מצד לקוח
-    // יווצר מאפיין בשם אירור ונחזיר את הפירוט של הטעות
-    if (validBody.error) {
-      return res.status(400).json(validBody.error.details);
-    }
-    try {
-      let { restId } = req.params;
-      let user = new UserModel(req.body);
-      user.worker.restaurantID.push(restId)
-      console.log(user)
-      await user.save()
-      await RestaurantModel.updateOne({ _id: restId }, { $push: { 'workersArray': user._id } })
-
-      sendVerificationEmail("worker", user, res);
-      res.status(201).json(user);
-    }
-    catch (err) {
-      if (err.code == 11000) {
-        return res.status(500).json({ msg: "Email already in system, try log in", code: 11000 })
-
-      }
       console.log(err);
       res.status(500).json({ msg: "err", err })
     }
@@ -146,10 +89,10 @@ exports.authCtrl = {
             await VerificationModel.deleteone({ id: userId })
             await UserModel.deleteone({ _id: userId })
             let message = "link hsa expired.please sigh up again ";
-            res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+            res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
           } catch (error) {
             let message = "an error occurre while clearing expired user verification record";
-            res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+            res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
 
           }
         } else {
@@ -162,7 +105,7 @@ exports.authCtrl = {
               if (worker == "y") {
                 await VerificationModel.deleteOne({ id: userId })
 
-                res.redirect(`${config.ReactUrl}/fillDetales/${userId}`)
+                res.redirect(`${config.webUrl}/fillDetales/${userId}`)
               }
               else {
                 let update = await UserModel.updateOne({ _id: userId }, { verified: true })
@@ -170,35 +113,35 @@ exports.authCtrl = {
                   console.log("עדכן")
                   // delete verify user collection when verified
                   await VerificationModel.deleteOne({ id: userId })
-                  res.redirect(`${config.ReactUrl}/messages/`);
+                  res.redirect(`${config.webUrl}/messages/`);
                 } else {
                   let message = "an error occurre while updating user verified ";
-                  res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+                  res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
                 }
               }
             } catch (error) {
               await VerificationModel.deleteOne({ _id: userId })
               // await UserModel.deleteOne({ _id: userId })
               let message = "invalid verification details passed.check your inbox.";
-              res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+              res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
             }
           } else {
             await VerificationModel.deleteOne({ _id: userId })
             await UserModel.deleteOne({ _id: userId })
             let message = "an error occurre while compering vrification sentence";
-            res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+            res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
           }
         }
       } else {
         // account alredy verified or not exist
         let message = "Account doesnt exist or has been verified already. Please sign up or login in.";
-        res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+        res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
       }
     } catch (error) {
 
       await VerificationModel.deleteOne({ uniqueString })
       let message = "an error occurre while checking for existing user Verification record ";
-      res.redirect(`${config.ReactUrl}/messages/?error=true&message=${message}`);
+      res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
 
     }
 
