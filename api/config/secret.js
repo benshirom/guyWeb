@@ -9,7 +9,8 @@ exports.config = {
   authPass: process.env.AUTH_PASS,
   apiUrl: process.env.API_URL,
   webUrl: process.env.WEB_URL,
-  salRounds: Number(process.env.SAL_ROUNDS),
+  salRounds: Number(process.env.SAL_ROUNDS),   
+  
 
 
 }
