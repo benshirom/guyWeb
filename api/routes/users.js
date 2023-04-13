@@ -20,7 +20,7 @@ router.patch("/editUser/:editId", auth, userCtrl.editUser)
 
 
 router.get("/verify/:userId/:uniqueString",authCtrl.verifyUser)
-router.get("/verified",authCtrl.verifiedUser)
+// router.get("/verified",authCtrl.verifiedUser)
 
 router.post("/requestPasswordReset",authCtrl.requestPasswordReset)
 router.post("/resetPassword", authCtrl.resetPassword)

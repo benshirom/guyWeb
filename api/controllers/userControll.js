@@ -1,6 +1,7 @@
 const { UserModel } = require("../models/userModel");
 const { validUserEdit } = require("../validation/userValidation");
 const bcrypt = require("bcrypt");
+const { createToken  } = require("../helpers/userHelper");
 
 exports.userCtrl = {
   checkToken: async (req, res) => {
@@ -16,7 +17,7 @@ exports.userCtrl = {
           .status(401)
           .json({ err: "Token is expierd , go and log in please" });
       }
-
+//להוסיף יצירת טוקן חדש על מנת לחדש תוקף לאחר בדיקה 
       res.json({ data: userInfo, msg: "success" });
     } catch (err) {
       console.log(err);
@@ -46,7 +47,6 @@ exports.userCtrl = {
     }
   },
 
-  //לנסות להקטין את כמות הבקשות מהשרת
 
   userList: async (req, res) => {
     try {
@@ -92,13 +92,7 @@ exports.userCtrl = {
       } else if (req.tokenData._id == editId) {
         userUpdate = await UserModel.updateOne({ _id: editId }, req.body);
       }
-      req.tokenData.jobs.forEach(async (job) => {
-        if (job == "manager") {
-          console.log(job);
-
-          userUpdate = await UserModel.updateOne({ _id: editId }, req.body);
-        }
-      });
+      
       console.log(userUpdate);
       res.json(userUpdate);
     } catch (err) {

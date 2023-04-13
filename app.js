@@ -31,7 +31,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin : [ "http://localhost:3000",config.webUrl,"http://localhost:3001"]
+        origin : [config.webUrl,"http://localhost:3001"]
     }
 })
 
@@ -41,8 +41,7 @@ app.get("/" , (req,res)=> {
   })
 // console.log("env",process.env.TEST, process.env.USER_DB)
 
-let port = process.env.PORT 
-server.listen(port, ()=>{
-    console.log(`Server is running on port: ${port}`)
+server.listen(config.port, ()=>{
+    console.log(`Server is running on port: ${config.port}`)
 });
 io.on('connection', sockets)

@@ -4,7 +4,7 @@ const { UserModel } = require("../models/userModel");
 const { VerificationModel } = require("../models/verificationModel");
 
 const { config } = require("../config/secret");
-const { validSignUpUser, validLogin, validSignUpWorker, validSignUpManager } = require("../validation/userValidation");
+const { validSignUpUser, validLogin } = require("../validation/userValidation");
 const { createToken, sendVerificationEmail, sendResetPasswordEmail } = require("../helpers/userHelper");
 
 
@@ -13,6 +13,8 @@ exports.authCtrl = {
   signUp: async (req, res) => {
     let validBody = validSignUpUser(req.body);
 
+    console.log(validBody)
+    console.log(req.body)
     if (validBody.error) {
       return res.status(400).json(validBody.error.details);
     }
@@ -64,7 +66,6 @@ exports.authCtrl = {
         token: token,
         userRole: user.role,
         id: user._id,
-        jobs: user.worker.jobs
       }
       res.json(data);
     }
@@ -76,7 +77,7 @@ exports.authCtrl = {
   // צריך לתקן CATCH TO L וגם ליצר אחד ל'םרלקר שאחרי אימות ישלח לדף מילוי פרטים 
   verifyUser: async (req, res) => {
     let { userId, uniqueString } = req.params;
-    let { worker } = req.query
+    // let { worker } = req.query
     console.log("in")
     try {
       let verification = await VerificationModel.findOne({ id: userId })
@@ -102,23 +103,18 @@ exports.authCtrl = {
 
             console.log("שווה")
             try {
-              if (worker == "y") {
-                await VerificationModel.deleteOne({ id: userId })
 
-                res.redirect(`${config.webUrl}/fillDetales/${userId}`)
+              let update = await UserModel.updateOne({ _id: userId }, { verified: true })
+              if (update) {
+                console.log("עדכן")
+                // delete verify user collection when verified
+                await VerificationModel.deleteOne({ id: userId })
+                res.redirect(`${config.webUrl}/messages/`);
+              } else {
+                let message = "an error occurre while updating user verified ";
+                res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
               }
-              else {
-                let update = await UserModel.updateOne({ _id: userId }, { verified: true })
-                if (update) {
-                  console.log("עדכן")
-                  // delete verify user collection when verified
-                  await VerificationModel.deleteOne({ id: userId })
-                  res.redirect(`${config.webUrl}/messages/`);
-                } else {
-                  let message = "an error occurre while updating user verified ";
-                  res.redirect(`${config.webUrl}/messages/?error=true&message=${message}`);
-                }
-              }
+
             } catch (error) {
               await VerificationModel.deleteOne({ _id: userId })
               // await UserModel.deleteOne({ _id: userId })
@@ -147,9 +143,9 @@ exports.authCtrl = {
 
   },
 
-  verifiedUser: async (req, res) => {
-    res.sendFile(path.join(__dirname, "../views/verified.html"))
-  },
+  // verifiedUser: async (req, res) => {
+  //   res.sendFile(path.join(__dirname, "../views/verified.html"))
+  // },
 
 
   requestPasswordReset: async (req, res) => {
