@@ -50,7 +50,7 @@ exports.authCtrl = {
         return res.status(401).json({ err: "Password or email is worng ,code:1" })
       }
       if (!user.verified) {
-        return res.status(401).json({ err: "Email hasnt been verified yet. check your inbox. " });
+        return res.status(402).json({ err: "Email hasnt been verified yet. check your inbox. " });
       }
       if (!user.active) {
         res.json({ status: "failed", err: " account as been suspended" });
@@ -61,13 +61,13 @@ exports.authCtrl = {
         return res.status(401).json({ err: "Password or email is worng ,code:2" });
       }
       // מייצרים טוקן לפי שמכיל את האיידי של המשתמש
-      let token = createToken(user._id, user.role, user.worker.jobs);
-      let data = {
-        token: token,
-        userRole: user.role,
-        id: user._id,
-      }
-      res.json(data);
+      let token = createToken(user._id, user.role);
+      // let data = {
+      //   token: token,
+      //   userRole: user.role,
+      //   id: user._id,
+      // }
+      res.json(token);
     }
     catch (err) {
       console.log(err)
