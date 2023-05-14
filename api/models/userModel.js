@@ -9,7 +9,7 @@ let userSchema = new mongoose.Schema({
   phone: { type: String, default: "" },
   password: { type: String, default: "" },
   image: { type: String, default: "" },
-
+  dateOfBirth:{ type:String, default: "" },
   // role of the user if regular user or admin
   role: {
     type: String, default: "user"

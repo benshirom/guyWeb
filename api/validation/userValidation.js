@@ -9,7 +9,8 @@ exports.validSignUpUser = (_reqBody) => {
     },
     email: Joi.string().min(4).max(99).email().required(),
     phone: Joi.string().min(10).max(12).pattern(/^[0-9]+$/).required(),
-    password: Joi.string().min(6).max(99).required()
+    password: Joi.string().min(6).max(99).required(),
+    dateOfBirth:Joi.string().min(6).max(99).required()
   })
 
   return joiSchema.validate(_reqBody);
