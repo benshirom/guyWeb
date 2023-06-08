@@ -6,7 +6,7 @@ const { createToken  } = require("../helpers/userHelper");
 exports.userCtrl = {
   checkToken: async (req, res) => {
     try {
-      let userInfo = await UserModel.findOne({ _id: req.tokenData._id });
+      let userInfo = await UserModel.findOne({ _id: req.tokenData._id }, { password: 0 });
       console.log(req.tokenData);
       if (!userInfo) {
         return res.status(400).json({ err: "User not found !" });
@@ -39,7 +39,7 @@ exports.userCtrl = {
   userInfo: async (req, res) => {
     let { userId } = req.params;
     try {
-      let userInfo = await UserModel.findOne({ _id: userId });
+      let userInfo = await UserModel.findOne({ _id: userId }, { password: 0 });
       res.json(userInfo);
     } catch (err) {
       console.log(err);
@@ -50,7 +50,10 @@ exports.userCtrl = {
 
   userList: async (req, res) => {
     try {
-      let data = await UserModel.find({}, { password: 0 });
+      let data = await UserModel.find({}, { password: 0 })
+      .select('-cards')
+      .select('-tacticTyps')
+      .select('-intervalTyps');
       res.json(data);
     } catch (err) {
       console.log(err);
